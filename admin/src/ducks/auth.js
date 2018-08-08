@@ -1,12 +1,12 @@
 import {appName} from '../config'
-import {all, take, takeEvery, put, call, apply} from 'redux-saga/effects'
+import {all, take, takeEvery, put} from 'redux-saga/effects'
 import {Record} from 'immutable'
-import firebase from 'firebase'
 import { push } from 'react-router-redux';
 
 /**
  * Constants
  * */
+
 export const moduleName = 'auth'
 const prefix = `${appName}/${moduleName}`
 
@@ -23,8 +23,9 @@ export const SIGN_UP_ERROR = `${prefix}/SIGN_UP_ERROR`
 /**
  * Reducer
  * */
+
 export const ReducerRecord = Record({
-    user: null
+    user: null,
 })
 
 export default function reducer(state = new ReducerRecord(), action) {
@@ -42,6 +43,7 @@ export default function reducer(state = new ReducerRecord(), action) {
 /**
  * Selectors
  * */
+
 export const userSelector = state => state[moduleName].user
 
 /**
@@ -62,13 +64,6 @@ export function signUp(email, password) {
     }
 }
 
-firebase.auth().onAuthStateChanged(user => {
-    if (user) window.store.dispatch({
-        type: SIGN_IN_SUCCESS,
-        payload: user
-    })
-})
-
 /**
  * Sagas
  **/
@@ -82,52 +77,26 @@ export const signInSaga = function * () {
             payload
         })
 
-        const auth = firebase.auth()
 
-        try {
-            const user = yield call([auth, auth.signInWithEmailAndPassword], payload.email, payload.password)
-
+        if(payload.password){
             yield put({
                 type: SIGN_IN_SUCCESS,
-                payload: user
+                payload: payload
             })
+  
+          yield push('/people')
 
-            yield put(push('/people'));
-        } catch (error) {
+        } else {
             yield put({
                 type: SIGN_IN_ERROR,
-                error
+                payload: "Ошибка авторизации"
             })
         }
     }
 }
 
-export const signUpSaga = function * ({ payload }) {
-    yield put({
-        type: SIGN_UP_START,
-        payload
-    })
-
-    const auth = firebase.auth()
-
-    try {
-        const user = yield apply(auth, auth.createUserWithEmailAndPassword, [payload.email, payload.password])
-
-        yield put({
-            type: SIGN_UP_SUCCESS,
-            payload: user
-        })
-    } catch (error) {
-        yield put({
-            type: SIGN_UP_ERROR,
-            error
-        })
-    }
-}
-
 export const saga = function * () {
     yield all([
-        signInSaga(),
-        takeEvery(SIGN_UP_REQUEST, signUpSaga)
+        signInSaga()
     ])
 }
