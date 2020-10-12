@@ -8,6 +8,7 @@ class SignInForm extends Component {
 
     render() {
         return (
+          <>
             <form className="sign-in-form" onSubmit = {this.props.handleSubmit}>
                 <h2>Sign In Form</h2>
                 <div>
@@ -18,6 +19,8 @@ class SignInForm extends Component {
                 </div>
                 <button type = "submit" >Submit</button>
             </form>
+            <button onClick={this.props.googleSubmit}>Google Auth</button>
+          </>
         )
     }
 }

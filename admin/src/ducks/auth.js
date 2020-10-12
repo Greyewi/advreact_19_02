@@ -1,5 +1,5 @@
 import {appName} from '../config'
-import {all, take, takeEvery, put} from 'redux-saga/effects'
+import {all, take, put, takeEvery} from 'redux-saga/effects'
 import {Record} from 'immutable'
 import { push } from 'react-router-redux';
 
@@ -15,10 +15,10 @@ export const SIGN_IN_START = `${prefix}/SIGN_IN_START`
 export const SIGN_IN_SUCCESS = `${prefix}/SIGN_IN_SUCCESS`
 export const SIGN_IN_ERROR = `${prefix}/SIGN_IN_ERROR`
 
-export const SIGN_UP_REQUEST = `${prefix}/SIGN_UP_REQUEST`
-export const SIGN_UP_START = `${prefix}/SIGN_UP_START`
-export const SIGN_UP_SUCCESS = `${prefix}/SIGN_UP_SUCCESS`
-export const SIGN_UP_ERROR = `${prefix}/SIGN_UP_ERROR`
+export const RESTORE_REQUEST = `${prefix}/RESTORE_REQUEST`
+export const RESTORE_START = `${prefix}/RESTORE_START`
+export const RESTORE_SUCCESS = `${prefix}/RESTORE_SUCCESS`
+export const RESTORE_ERROR = `${prefix}/RESTORE_ERROR`
 
 /**
  * Reducer
@@ -30,11 +30,12 @@ export const ReducerRecord = Record({
 
 export default function reducer(state = new ReducerRecord(), action) {
     const {type, payload} = action
-
+    
     switch (type) {
-        case SIGN_UP_SUCCESS:
         case SIGN_IN_SUCCESS:
             return state.set('user', payload)
+        case RESTORE_SUCCESS:
+            return state
         default:
             return state
     }
@@ -57,10 +58,10 @@ export function signIn(email, password) {
     }
 }
 
-export function signUp(email, password) {
+export function sendRestore(email) {
     return {
-        type: SIGN_UP_REQUEST,
-        payload: { email, password }
+        type: RESTORE_REQUEST,
+        payload: email
     }
 }
 
@@ -72,19 +73,18 @@ export const signInSaga = function * () {
     while (true) {
         const {payload} = yield take(SIGN_IN_REQUEST)
 
-        yield put({
-            type: SIGN_IN_START,
-            payload
-        })
-
-
+        // yield put({
+        //     type: SIGN_IN_START,
+        //     payload
+        // })
+      
         if(payload.password){
             yield put({
                 type: SIGN_IN_SUCCESS,
                 payload: payload
             })
-  
-          yield push('/people')
+          
+            yield put(push('/clients'))
 
         } else {
             yield put({
@@ -97,6 +97,6 @@ export const signInSaga = function * () {
 
 export const saga = function * () {
     yield all([
-        signInSaga()
+      takeEvery(SIGN_IN_REQUEST, signInSaga)
     ])
 }

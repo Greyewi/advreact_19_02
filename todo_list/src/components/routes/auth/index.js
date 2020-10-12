@@ -3,7 +3,7 @@ import {connect} from 'react-redux'
 import {Route, NavLink} from 'react-router-dom'
 import SignInForm from '../../auth/sign-in-form'
 import RestoreForm from '../../auth/restore-form'
-import {signIn} from '../../../ducks/auth'
+import {signIn, signGoogleIn} from '../../../ducks/auth'
 
 class AuthRoute extends Component {
 
@@ -20,7 +20,10 @@ class AuthRoute extends Component {
                 </div>
                 <h1>Аутентификация</h1>
                 <div>
-                    <Route path = "/auth/sign-in" render = {() => <SignInForm onSubmit = {this.handleSignIn}/>}/>
+                    <Route path = "/auth/sign-in" render = {() => <SignInForm
+                      googleSubmit={this.handleSignGoogleIn}
+                      onSubmit = {this.handleSignIn}/>}
+                    />
                     <Route path = "/auth/restore" render = {() => <RestoreForm onSubmit = {this.handleSignIn}/>}/>
                 </div>
             </div>
@@ -28,7 +31,7 @@ class AuthRoute extends Component {
     }
 
     handleSignIn = ({ email, password }) => this.props.signIn(email, password)
-    handleSignIn = ({ email, password }) => this.props.signIn(email, password)
+    handleSignGoogleIn = () => this.props.signGoogleIn()
 }
 
-export default connect(null, { signIn })(AuthRoute)
+export default connect(null, { signIn, signGoogleIn })(AuthRoute)
